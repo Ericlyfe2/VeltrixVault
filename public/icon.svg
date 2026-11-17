@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="VeltrixVault">
+  <rect width="64" height="64" rx="15" fill="#0b2e22"/>
+  <path d="M13 17h9.4l9.6 24.2L41.6 17H51L37.2 50h-10L13 17Z" fill="#c9f26a"/>
+  <path d="M31.2 39.5h4.6l3.4 8.6h-4.1l-3.9-8.6Z" fill="#e8c56b"/>
+  <circle cx="48.5" cy="47.5" r="4.5" fill="#f4f0e4"/>
+</svg>
