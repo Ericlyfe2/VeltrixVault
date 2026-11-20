@@ -90,7 +90,7 @@ export default async function CompetitionPage({ params }: Params) {
 
       <section className="container-vv py-14 md:py-20">
         <div className="grid gap-8 lg:grid-cols-[1.45fr_0.55fr]">
-          <div>
+          <div className="min-w-0">
             <Reveal>
               <SectionHeading
                 eyebrow={leaguePage.table.eyebrow}

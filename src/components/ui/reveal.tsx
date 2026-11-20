@@ -17,12 +17,12 @@ export function Reveal({
   const reduce = useReducedMotion();
 
   if (reduce) {
-    return <div className={className}>{children}</div>;
+    return <div className={`min-w-0 ${className ?? ""}`}>{children}</div>;
   }
 
   return (
     <motion.div
-      className={className}
+      className={`min-w-0 ${className ?? ""}`}
       initial={{ opacity: 0, y }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-70px" }}
