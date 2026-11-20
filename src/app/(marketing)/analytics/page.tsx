@@ -7,7 +7,10 @@ import { Badge } from "@/components/ui/badge";
 import { ButtonLink } from "@/components/ui/button-link";
 import { Reveal } from "@/components/ui/reveal";
 import { SectionHeading } from "@/components/ui/section-heading";
-import { getCompetitionOverviews, getDatasetOverview } from "@/lib/queries";
+import {
+  getPublicCompetitionOverviews,
+  getPublicDatasetOverview,
+} from "@/lib/public-data";
 import { formatDate, formatNumber } from "@/lib/utils";
 
 export const revalidate = 3600;
@@ -28,8 +31,8 @@ const accentStyles: Record<string, string> = {
 
 export default async function AnalyticsPage() {
   const [overview, competitions] = await Promise.all([
-    getDatasetOverview(),
-    getCompetitionOverviews(),
+    getPublicDatasetOverview(),
+    getPublicCompetitionOverviews(),
   ]);
 
   const seasons = [...new Set(competitions.map((competition) => competition.season))].sort(

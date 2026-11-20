@@ -19,13 +19,13 @@ import { Reveal } from "@/components/ui/reveal";
 import { SectionHeading } from "@/components/ui/section-heading";
 import { home } from "@/content/marketing";
 import { site } from "@/content/site";
-import { buildPrediction, publicPrediction } from "@/lib/analysis";
 import {
-  getCompetitions,
-  getDatasetOverview,
-  getDefaultCompetition,
-  getRecentMatches,
-} from "@/lib/queries";
+  getPublicCompetitions,
+  getPublicDatasetOverview,
+  getPublicDefaultCompetition,
+  getPublicPrediction,
+  getPublicRecentMatches,
+} from "@/lib/public-data";
 import { formatDate, formatNumber } from "@/lib/utils";
 
 export const revalidate = 3600;
@@ -41,25 +41,19 @@ const featureIcons = {
 
 export default async function HomePage() {
   const [overview, competitions, competition] = await Promise.all([
-    getDatasetOverview(),
-    getCompetitions(),
-    getDefaultCompetition(),
+    getPublicDatasetOverview(),
+    getPublicCompetitions(),
+    getPublicDefaultCompetition(),
   ]);
 
   let snapshot = null;
 
   if (competition && competition.teams.length >= 2) {
     const [homeTeam, awayTeam] = competition.teams;
-    try {
-      snapshot = publicPrediction(
-        await buildPrediction(competition.id, homeTeam.id, awayTeam.id),
-      );
-    } catch {
-      snapshot = null;
-    }
+    snapshot = getPublicPrediction(competition.id, homeTeam.id, awayTeam.id);
   }
 
-  const recentMatches = competition ? await getRecentMatches(competition.id, 6) : [];
+  const recentMatches = competition ? getPublicRecentMatches(competition.id, 6) : [];
 
   return (
     <>

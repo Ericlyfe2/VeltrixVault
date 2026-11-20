@@ -1,15 +1,6 @@
 import { cache } from "react";
 import { db } from "@/lib/db";
 
-export const getCompetitions = cache(async () => {
-  return db.competition.findMany({
-    include: {
-      _count: { select: { teams: true, matches: true } },
-    },
-    orderBy: [{ season: "desc" }, { name: "asc" }],
-  });
-});
-
 export const getCompetition = cache(async (id: string) => {
   return db.competition.findUnique({
     where: { id },
@@ -18,40 +9,6 @@ export const getCompetition = cache(async (id: string) => {
       _count: { select: { matches: true, teams: true } },
     },
   });
-});
-
-export const getCompetitionOverviews = cache(async () => {
-  const competitions = await db.competition.findMany({
-    include: {
-      teams: { orderBy: [{ points: "desc" }, { goalsFor: "desc" }] },
-      _count: { select: { matches: true, teams: true } },
-    },
-    orderBy: [{ season: "desc" }, { name: "asc" }],
-  });
-
-  return Promise.all(
-    competitions.map(async (competition) => {
-      const aggregate = await db.match.aggregate({
-        where: { competitionId: competition.id },
-        _sum: { homeGoals: true, awayGoals: true },
-        _max: { date: true },
-      });
-
-      const goals = (aggregate._sum.homeGoals ?? 0) + (aggregate._sum.awayGoals ?? 0);
-      const matches = competition._count.matches;
-
-      return {
-        ...competition,
-        stats: {
-          matches,
-          teams: competition._count.teams,
-          goals,
-          goalsPerMatch: matches > 0 ? goals / matches : 0,
-          lastDate: aggregate._max.date,
-        },
-      };
-    }),
-  );
 });
 
 export const getCompetitionAnalytics = cache(async (competitionId: string) => {
@@ -87,25 +44,6 @@ export const getCompetitionAnalytics = cache(async (competitionId: string) => {
       lastDate: matches[0]?.date ?? null,
     },
   };
-});
-
-export const getDefaultCompetition = cache(async () => {
-  const preferred = await db.competition.findFirst({
-    where: { slug: "premier-league", season: "2025/26" },
-    include: {
-      teams: { orderBy: [{ points: "desc" }, { goalsFor: "desc" }] },
-      _count: { select: { matches: true, teams: true } },
-    },
-  });
-  if (preferred) return preferred;
-
-  return db.competition.findFirst({
-    include: {
-      teams: { orderBy: [{ points: "desc" }, { goalsFor: "desc" }] },
-      _count: { select: { matches: true, teams: true } },
-    },
-    orderBy: [{ season: "desc" }, { name: "asc" }],
-  });
 });
 
 export const getTeam = cache(async (id: string) => {
@@ -183,34 +121,6 @@ export const getTeamProfile = cache(async (id: string) => {
     pointsPerMatch: team.played > 0 ? team.points / team.played : 0,
     goalsPerMatch: team.played > 0 ? team.goalsFor / team.played : 0,
     concededPerMatch: team.played > 0 ? team.goalsAgainst / team.played : 0,
-  };
-});
-
-export async function getRecentMatches(competitionId: string, limit = 8) {
-  return db.match.findMany({
-    where: { competitionId },
-    orderBy: { date: "desc" },
-    take: limit,
-  });
-}
-
-export const getDatasetOverview = cache(async () => {
-  const [competitions, teams, aggregate] = await Promise.all([
-    db.competition.count(),
-    db.team.count(),
-    db.match.aggregate({
-      _count: true,
-      _sum: { homeGoals: true, awayGoals: true },
-      _max: { date: true },
-    }),
-  ]);
-
-  return {
-    competitions,
-    teams,
-    matches: aggregate._count,
-    goals: (aggregate._sum.homeGoals ?? 0) + (aggregate._sum.awayGoals ?? 0),
-    lastMatchDate: aggregate._max.date,
   };
 });
 

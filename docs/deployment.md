@@ -18,13 +18,15 @@ Copy `.env.example` and set the following in your hosting platform's environment
 
 | Variable | Required | Purpose |
 | --- | --- | --- |
-| `DATABASE_URL` | Yes | PostgreSQL connection string, e.g. `postgresql://user:pass@host:5432/veltrixvault?schema=public` |
+| `DATABASE_URL` | Yes at runtime and seeding | PostgreSQL connection string, e.g. `postgresql://user:pass@host:5432/veltrixvault?schema=public`. Not needed during `next build` (see below). |
 | `NEXT_PUBLIC_APP_URL` | Yes | Canonical origin with no trailing slash, e.g. `https://analytics.example.com`. Used for metadata, invite links, and emails. |
 | `IP_HASH_SECRET` | **Yes in production** | Long random string used to pseudonymise IPs in the audit trail. The app throws at startup if missing when `NODE_ENV=production`. Generate with `node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"`. |
 | `RESEND_API_KEY` | Recommended | Enables verification and password-reset emails. Without it, links are logged server-side but not delivered to users. |
 | `MAIL_FROM` | If email enabled | Verified sender, e.g. `VeltrixVault <no-reply@example.com>`. |
 
 `NODE_ENV` is set to `production` by Next.js during build and start. Secure cookies, the production Content-Security-Policy, and other security headers are enabled automatically in that mode.
+
+The prerendered marketing pages (`/` and `/analytics`) read the committed `src/data/dataset.json` through `src/lib/public-data.ts`, not the database. A clean `npm run build` therefore succeeds without `DATABASE_URL` or a seeded database — useful for CI and container image builds. `DATABASE_URL` must still be present when seeding and when the app serves dynamic routes (league/team pages, Match Lab, accounts, APIs).
 
 ## 3. Switch Prisma to PostgreSQL
 

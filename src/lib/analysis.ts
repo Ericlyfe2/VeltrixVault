@@ -1,13 +1,10 @@
 import "server-only";
 import { db } from "@/lib/db";
-import {
-  computeLeagueAverages,
-  predictMatch,
-  type LeagueAverages,
-  type Prediction,
-  type TeamStats,
-} from "@/lib/model/poisson";
-import type { Competition, Team } from "@prisma/client";
+import { computeLeagueAverages, predictMatch, type TeamStats } from "@/lib/model/poisson";
+import type { PredictionBundle } from "@/lib/model/presentation";
+
+export { publicPrediction } from "@/lib/model/presentation";
+export type { PredictionBundle, PublicPrediction } from "@/lib/model/presentation";
 
 export class PredictionError extends Error {
   status: number;
@@ -16,14 +13,6 @@ export class PredictionError extends Error {
     this.status = status;
   }
 }
-
-export type PredictionBundle = {
-  competition: Competition;
-  home: Team;
-  away: Team;
-  prediction: Prediction;
-  averages: LeagueAverages;
-};
 
 export async function buildPrediction(
   competitionId: string,
@@ -57,50 +46,3 @@ export async function buildPrediction(
 
   return { competition, home, away, prediction, averages };
 }
-
-export function publicPrediction(bundle: PredictionBundle) {
-  const { competition, home, away, prediction, averages } = bundle;
-
-  return {
-    competition: {
-      id: competition.id,
-      name: competition.name,
-      season: competition.season,
-      country: competition.country,
-    },
-    home: {
-      id: home.id,
-      name: home.name,
-      shortName: home.shortName,
-      monogram: home.monogram,
-      color: home.color,
-      played: home.played,
-      points: home.points,
-      form: home.form,
-      goalsFor: home.goalsFor,
-      goalsAgainst: home.goalsAgainst,
-    },
-    away: {
-      id: away.id,
-      name: away.name,
-      shortName: away.shortName,
-      monogram: away.monogram,
-      color: away.color,
-      played: away.played,
-      points: away.points,
-      form: away.form,
-      goalsFor: away.goalsFor,
-      goalsAgainst: away.goalsAgainst,
-    },
-    averages,
-    prediction,
-    model: {
-      name: "Independent Poisson",
-      version: "1.0",
-      disclosure:
-        "Statistical estimate for analysis and education. Not betting advice, and no outcome is guaranteed.",
-    },
-  };
-}
-
-export type PublicPrediction = ReturnType<typeof publicPrediction>;

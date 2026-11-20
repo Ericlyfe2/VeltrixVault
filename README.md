@@ -31,6 +31,8 @@ Match data comes from the public-domain [OpenFootball football.json](https://git
 
 The bundled snapshot contains **six competitions, 116 teams, 1,683 matches, and 4,985 goals** (latest result 20 September 2026). Five competitions are partial 2025/26 seasons and one is a partial 2026/27 Premier League season. Every competition is explicitly marked incomplete in the UI; the app never presents a snapshot as a finished season.
 
+Static marketing pages read this committed dataset directly via `src/lib/public-data.ts`, so `npm run build` does not need `DATABASE_URL` or a seeded database. Dynamic routes and user data still use Prisma.
+
 ## Model
 
 The Match Lab uses a deliberately simple **independent-Poisson goals model**:
@@ -116,7 +118,7 @@ src/
     ui/                 Buttons, fields, badges, charts, shared primitives
   content/              All product copy in one place (site, marketing, product, legal)
   data/                 Generated dataset.json
-  lib/                  Auth, DB, validation, rate limiting, model, queries, mail, HTTP helpers
+  lib/                  Auth, DB, validation, rate limiting, model, queries, public dataset, mail, HTTP helpers
 prisma/                 Schema and seed
 scripts/                Dataset build script
 tests/unit/             Vitest suites
